@@ -1,6 +1,53 @@
 <template>
-  <router-view />
+  <div>
+    <div v-if="!mobile" class="app flex">
+      <Navigation />
+      <div class="app-content flex flex-column">
+        <router-view />
+      </div>
+    </div>
+    <div v-else class="mobile-message flex flex-column">
+      <h2>Mobile version coming soon!</h2>
+      <p>
+        This app is not yet optimized for mobile devices. Please use a desktop
+        or laptop for the best experience.
+      </p>
+    </div>
+  </div>
 </template>
+
+<script lang="ts">
+import { defineComponent, onMounted, ref } from "vue";
+import Navigation from "./components/Navigation.vue";
+
+export default defineComponent({
+  name: "App",
+  components: {
+    Navigation,
+  },
+  setup() {
+    const mobile = ref(false);
+    const checkScreen = () => {
+      const windowWidth = window.innerWidth;
+      const isMobile = windowWidth <= 750;
+      if (isMobile) {
+        mobile.value = true;
+        return;
+      }
+      mobile.value = false;
+    };
+
+    onMounted(() => {
+      checkScreen();
+      window.addEventListener("resize", checkScreen);
+    });
+
+    return {
+      mobile,
+    };
+  },
+});
+</script>
 
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
@@ -10,7 +57,41 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
+  /* background-color: #141625; */
+}
+
+.app {
   background-color: #141625;
+  min-height: 100vh;
+  flex-direction: column;
+  @media (min-width: 900px) {
+    flex-direction: row !important;
+  }
+  .app-content {
+    padding: 0 20px;
+    flex: 1;
+    position: relative;
+    @media (min-width: 900px) {
+      padding-top: 72px;
+    }
+  }
+}
+.mobile-message {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #141625;
+  h2 {
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  p {
+    color: #fff;
+    font-size: 14px;
+    margin-top: 16px;
+  }
 }
 
 button,
