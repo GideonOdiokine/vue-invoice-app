@@ -7,7 +7,7 @@
         <span>There are 7 total invoices</span>
       </div>
       <div class="right flex">
-        <div class="filter flex">
+        <div @click="toggleFilterMenu" class="filter flex">
           <span>Filter by status</span>
           <img src="@/assets/icon-arrow-down.svg" alt="" />
           <ul v-show="filterMenu" class="filter-menu">
@@ -17,7 +17,7 @@
             <li>Clear Filter</li>
           </ul>
         </div>
-        <div class="button flex">
+        <div class="button flex" @click="invoiceModal">
           <div class="inner-button flex">
             <img src="@/assets/icon-plus.svg" alt="" />
           </div>
@@ -30,13 +30,27 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import { useStore } from "vuex";
+
 export default defineComponent({
   name: "Home",
   components: {},
   setup() {
+    const store = useStore();
+    const invoiceModal = () => {
+      store.commit("TOGGLE_INVOICE_MODAL");
+    };
+
     const filterMenu = ref(false);
+
+    const toggleFilterMenu = () => {
+      filterMenu.value = !filterMenu.value;
+    };
+
     return {
       filterMenu,
+      toggleFilterMenu,
+      invoiceModal,
     };
   },
 });
@@ -69,11 +83,8 @@ export default defineComponent({
       .filter {
         margin-right: 40px;
         position: relative;
+        cursor: pointer;
 
-        span,
-        img {
-          pointer-events: none;
-        }
         img {
           margin-left: 8px;
           width: 9px;

@@ -3,6 +3,7 @@
     <div v-if="!mobile" class="app flex">
       <Navigation />
       <div class="app-content flex flex-column">
+        <InvoiceModal v-if="invoiceModal" />
         <router-view />
       </div>
     </div>
@@ -19,11 +20,14 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import Navigation from "./components/Navigation.vue";
+import InvoiceModal from "./components/InvoiceModal.vue";
+import { mapState } from "vuex";
 
 export default defineComponent({
   name: "App",
   components: {
     Navigation,
+    InvoiceModal,
   },
   setup() {
     const mobile = ref(false);
@@ -45,6 +49,9 @@ export default defineComponent({
     return {
       mobile,
     };
+  },
+  computed: {
+    ...mapState(["invoiceModal"]),
   },
 });
 </script>
