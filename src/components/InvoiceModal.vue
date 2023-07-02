@@ -201,8 +201,9 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { useStore } from "vuex";
+import { uid } from "uid";
 
 export default defineComponent({
   name: "InvoiceModal",
@@ -215,7 +216,6 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-
     const CloseInvoiceModal = () => {
       store.commit("TOGGLE_INVOICE_MODAL");
     };
@@ -230,19 +230,77 @@ export default defineComponent({
     const clientCity = ref(null);
     const clientZipCode = ref(null);
     const clientCountry = ref(null);
-    const invoiceDateUnix = ref(null);
-    const invoiceDate = ref(null);
-    const paymentTerms = ref(null);
-    const paymentDueDateUnix = ref(null);
-    const paymentDueDate = ref(null);
+    const invoiceDateUnix = ref();
+    const invoiceDate = ref();
+    const paymentTerms = ref();
+    const paymentDueDateUnix = ref();
+    const paymentDueDate = ref();
     const productDescription = ref(null);
     const invoicePending = ref(null);
     const invoiceDraft = ref(null);
-    const invoiceItemList = ref([]);
+    const invoiceItemList = ref<
+      {
+        id: string;
+        itemName: string;
+        qty: number;
+        price: number;
+        total: number;
+      }[]
+    >([]);
     const invoiceTotal = ref(null);
+
+    // generate invoice date
+    invoiceDateUnix.value = Date.now();
+    invoiceDate.value = new Date(invoiceDateUnix.value).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }
+    );
+
+    // add new invoice item
+    const addNewInvoiceItem = () => {
+      invoiceItemList.value.push({
+        id: uid(),
+        itemName: "",
+        qty: 0,
+        price: 0,
+        total: 0,
+      });
+    };
+
+    // delete invoice item
+    const deleteInvoiceItem = (id: string) => {
+      invoiceItemList.value = invoiceItemList.value.filter(
+        (item) => item.id !== id
+      );
+    };
+
+    // generate payment due date based on payment terms
+    watch(paymentTerms, () => {
+      const futureDate = new Date();
+      paymentDueDateUnix.value = futureDate.setDate(
+        futureDate.getDate() + parseInt(paymentTerms.value)
+      );
+      paymentDueDate.value = new Date(
+        paymentDueDateUnix.value
+      ).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    });
 
     return {
       CloseInvoiceModal,
+      invoiceDate,
+      paymentDueDate,
+      paymentTerms,
+      invoiceItemList,
+      addNewInvoiceItem,
+      deleteInvoiceItem,
     };
   },
 });
